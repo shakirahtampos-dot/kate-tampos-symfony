@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Kates Goodies{% endblock %}</title>
+    <link rel="stylesheet" href="/css/style.css">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/" class="brand">
+            <span class="logo-mark">Kates</span>
+            <span class="brand-name">Kates <span>Goodies</span></span>
+        </a>
+
+        <div class="desktop-nav">
+            <a href="/#menu">Menu</a>
+            <a href="/#about">About</a>
+            <a href="/#order">Order</a>
+
+            {% if app.user %}
+                <div class="notification-wrapper">
+                    <button type="button" class="nav-icon notification-button" title="Notifications">🔔</button>
+                    <div class="notification-panel">
+                        <div class="notification-header"><h3>Notifications</h3></div>
+                        <div class="notification-list">
+                            <div class="no-notifications"><p>No notifications yet.</p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="/cart" class="nav-icon cart-icon" title="Cart">
+                    🛒
+                    {% if cart_count() > 0 %}
+                        <span class="cart-count">{{ cart_count() }}</span>
+                    {% endif %}
+                </a>
+
+                <div class="profile-dropdown">
+                    <button type="button" class="profile-button">
+                        <span class="profile-icon">👤</span>
+                        {{ app.user.fullName }}
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="profile-menu">
+                        <a href="/profile">My Profile</a>
+                        <a href="/orders">My Orders</a>
+                        <a href="/logout">Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/register" class="nav-button">Order Now</a>
+            {% endif %}
+        </div>
+
+        <input type="checkbox" id="menu-toggle">
+        <label for="menu-toggle" class="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+    </div>
+
+    <div class="mobile-nav">
+        <a href="/#menu">Menu</a>
+        <a href="/#about">About</a>
+        <a href="/#order">Order</a>
+
+        {% if app.user %}
+            <a href="/cart">🛒 Cart ({{ cart_count() }})</a>
+            <a href="/profile">👤 My Profile</a>
+            <a href="/orders">My Orders</a>
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register" class="nav-button">Order Now</a>
+        {% endif %}
+    </div>
+</nav>
+
+{% for message in app.flashes('error') %}
+    <div style="background:#fde8e8;color:#9b1c1c;padding:12px 20px;text-align:center;">{{ message }}</div>
+{% endfor %}
+
+{% block body %}{% endblock %}
+
+<footer class="footer" id="footer">
+    <div class="footer-container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="brand footer-logo">
+                    <span class="logo-mark">Kates</span>
+                    <span class="brand-name">Kates <span>Goodies</span></span>
+                </div>
+                <p>Freshly baked every morning with premium local ingredients and zero preservatives. The bakery that feels like home.</p>
+            </div>
+
+            <div>
+                <p class="footer-heading">Explore</p>
+                <p>Menu</p>
+                <p>Pre-Order</p>
+                <p>Gift Boxes</p>
+                <p>Catering</p>
+            </div>
+
+            <div>
+                <p class="footer-heading">Visit</p>
+                <p>12 Baker St, South Melbourne</p>
+                <p>Mon–Fri 6am – 2pm</p>
+                <p>Sat–Sun 7am – 1pm</p>
+            </div>
+
+            <div>
+                <p class="footer-heading">Follow</p>
+                <p>Instagram</p>
+                <p>Facebook</p>
+                <p>TikTok</p>
+                <p>Newsletter</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2025 Kates Goodies. All rights reserved.</p>
+            <p>Honesty · Warmth · Craft · Community · Sustainability</p>
+        </div>
+    </div>
+</footer>
+
+<script src="/javascript.js"></script>
+</body>
+</html>

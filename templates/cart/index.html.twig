@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Cart | Kates Goodies{% endblock %}
+
+{% block body %}
+<div class="container">
+
+    <h1>My Cart</h1>
+
+    {% if items is empty %}
+
+        <div class="empty-cart">
+            <h2>Your cart is empty</h2>
+            <p>You haven't added any products yet.</p>
+
+            <a href="{{ path('app_home') }}" class="btn checkout">Continue Shopping</a>
+        </div>
+
+    {% else %}
+
+        <div class="cart">
+
+            {% for item in items %}
+                <div class="cart-item">
+
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image }}" alt="{{ item.product.name }}" class="product-image">
+                    {% else %}
+                        <div class="product-image"></div>
+                    {% endif %}
+
+                    <div class="product-info">
+                        <h3>{{ item.product.name }}</h3>
+
+                        <div class="product-price">₱{{ item.product.price|number_format(2) }}</div>
+
+                        <div class="quantity">
+                            <form action="{{ path('app_cart_update') }}" method="POST">
+                                <input type="hidden" name="cart_item_id" value="{{ item.id }}">
+
+                                <button type="submit" name="action" value="decrease" {{ item.quantity <= 1 ? 'disabled' : '' }}>−</button>
+
+                                <span>{{ item.quantity }}</span>
+
+                                <button type="submit" name="action" value="increase">+</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="subtotal">
+                        ₱{{ (item.product.price * item.quantity)|number_format(2) }}
+                    </div>
+
+                    <a href="{{ path('app_cart_remove', {id: item.id}) }}"
+                       class="remove"
+                       onclick="return confirm('Remove this item from your cart?');">
+                        Remove
+                    </a>
+
+                </div>
+            {% endfor %}
+
+            <div class="cart-summary">
+
+                <div class="total">
+                    Total: ₱{{ total|number_format(2) }}
+                </div>
+
+                <div class="buttons">
+                    <a href="{{ path('app_home') }}" class="btn continue">Continue Shopping</a>
+                    <a href="/checkout" class="btn checkout">Proceed to Checkout</a>
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}
