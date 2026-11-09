@@ -108,7 +108,7 @@ class OrderController extends AbstractController
 
         try {
             $this->db->executeStatement(
-                'INSERT INTO orders (user_id, delivery_address, total_amount, status) VALUES (?, ?, ?, ?)',
+                'INSERT INTO orders (user_id, delivery_address, total_amount, status, notification_read, created_at) VALUES (?, ?, ?, ?, 0, NOW())',
                 [$user->getId(), $address, $total, 'Pending']
             );
             $orderId = (int) $this->db->lastInsertId();
@@ -120,95 +120,4 @@ class OrderController extends AbstractController
                 );
 
                 $updated = $this->db->executeStatement(
-                    'UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?',
-                    [$item['quantity'], $item['product_id'], $item['quantity']]
-                );
-
-                if ($updated === 0) {
-                    throw new \RuntimeException('Not enough stock for ' . $item['name']);
-                }
-            }
-
-            $this->db->executeStatement('DELETE FROM cart_items WHERE cart_id = ?', [$cartId]);
-
-            $this->db->commit();
-        } catch (\Throwable $e) {
-            $this->db->rollBack();
-            $this->addFlash('error', 'Order failed: ' . $e->getMessage());
-
-            return $this->redirectToRoute('app_checkout');
-        }
-
-        return $this->redirectToRoute('app_order_success', ['id' => $orderId]);
-    }
-
-    #[Route('/order/success/{id}', name: 'app_order_success', requirements: ['id' => '\d+'])]
-    public function success(int $id): Response
-    {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        $order = $this->db->fetchAssociative(
-            'SELECT id, total_amount, status, delivery_address, created_at FROM orders WHERE id = ? AND user_id = ?',
-            [$id, $user->getId()]
-        );
-
-        if (!$order) {
-            return $this->redirectToRoute('app_orders');
-        }
-
-        return $this->render('order/success.html.twig', ['order' => $order]);
-    }
-
-    #[Route('/orders', name: 'app_orders')]
-    public function index(): Response
-    {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        $orders = $this->db->fetchAllAssociative(
-            'SELECT id, total_amount, status, created_at FROM orders WHERE user_id = ? ORDER BY created_at DESC',
-            [$user->getId()]
-        );
-
-        return $this->render('order/index.html.twig', ['orders' => $orders]);
-    }
-
-    #[Route('/orders/{id}', name: 'app_order_show', requirements: ['id' => '\d+'])]
-    public function show(int $id): Response
-    {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        $order = $this->db->fetchAssociative(
-            'SELECT id, delivery_address, total_amount, status, created_at FROM orders WHERE id = ? AND user_id = ?',
-            [$id, $user->getId()]
-        );
-
-        if (!$order) {
-            return $this->redirectToRoute('app_orders');
-        }
-
-        $items = $this->db->fetchAllAssociative(
-            'SELECT oi.product_id, oi.quantity, oi.price, p.name, p.image
-             FROM order_items oi
-             INNER JOIN products p ON oi.product_id = p.id
-             WHERE oi.order_id = ?
-             ORDER BY oi.id ASC',
-            [$id]
-        );
-
-        foreach ($items as &$item) {
-            $item['subtotal'] = $item['price'] * $item['quantity'];
-        }
-        unset($item);
-
-        return $this->render('order/show.html.twig', ['order' => $order, 'items' => $items]);
-    }
-}
+                    'UPDATE products
