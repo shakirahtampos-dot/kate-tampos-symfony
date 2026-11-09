@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order Confirmed | Kates Goodies{% endblock %}
+
+{% block body %}
+<main class="order-success-page">
+    <div class="order-success-card">
+        <div class="order-success-icon">✓</div>
+        <p class="eyebrow">Order Confirmed</p>
+        <h1>Thank You<br>For Your Order!</h1>
+        <p class="order-success-message">
+            Your order has been successfully placed.
+            We'll prepare your goodies with care.
+        </p>
+
+        <div class="success-order-number">
+            <span>Order Number</span>
+            <strong>#{{ order.id }}</strong>
+        </div>
+
+        <div class="success-details">
+            <div>
+                <span>Status</span>
+                <strong>{{ order.status }}</strong>
+            </div>
+            <div>
+                <span>Total</span>
+                <strong>₱{{ order.total_amount|number_format(2) }}</strong>
+            </div>
+            <div>
+                <span>Delivery Address</span>
+                <strong>{{ order.delivery_address|nl2br }}</strong>
+            </div>
+        </div>
+
+        <div class="order-success-actions">
+            <a href="{{ path('app_order_show', {id: order.id}) }}" class="success-primary-button">View Order</a>
+            <a href="{{ path('app_home') }}" class="success-secondary-button">Continue Shopping</a>
+        </div>
+    </div>
+</main>
+{% endblock %}

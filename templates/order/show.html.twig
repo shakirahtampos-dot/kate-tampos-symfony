@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order #{{ order.id }} | Kates Goodies{% endblock %}
+
+{% block body %}
+<main class="order-details-page">
+    <div class="order-details-heading">
+        <p class="eyebrow">My Order</p>
+        <div class="order-heading-row">
+            <div>
+                <h1>Order #{{ order.id }}</h1>
+                <p>Thank you for ordering from Kates Goodies.</p>
+            </div>
+            <a href="{{ path('app_orders') }}" class="order-back-button">← My Orders</a>
+        </div>
+    </div>
+
+    <div class="order-details-grid">
+        <section class="order-main-card">
+            <div class="order-card-header">
+                <div>
+                    <p class="eyebrow">Order Items</p>
+                    <h2>Your Order</h2>
+                </div>
+                <span class="order-status status-{{ order.status|lower|replace({' ': '-'}) }}">{{ order.status }}</span>
+            </div>
+
+            <div class="customer-order-items">
+                {% for item in items %}
+                    <div class="customer-order-item">
+                        <div class="customer-order-image">
+                            {% if item.image %}
+                                <img src="/{{ item.image|trim('/', 'left') }}" alt="{{ item.name }}">
+                            {% endif %}
+                        </div>
+                        <div class="customer-order-info">
+                            <h3>{{ item.name }}</h3>
+                            <p>₱{{ item.price|number_format(2) }} × {{ item.quantity }}</p>
+                        </div>
+                        <strong class="customer-order-subtotal">₱{{ item.subtotal|number_format(2) }}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="customer-order-total">
+                <span>Total</span>
+                <strong>₱{{ order.total_amount|number_format(2) }}</strong>
+            </div>
+        </section>
+
+        <aside class="order-side-card">
+            <div class="order-info-block">
+                <p class="eyebrow">Delivery</p>
+                <h2>Delivery Address</h2>
+                <p class="delivery-address">{{ order.delivery_address|nl2br }}</p>
+            </div>
+
+            <div class="order-divider"></div>
+
+            <div class="order-info-block">
+                <p class="eyebrow">Order Information</p>
+                <div class="order-info-row"><span>Order Number</span><strong>#{{ order.id }}</strong></div>
+                <div class="order-info-row"><span>Status</span><strong>{{ order.status }}</strong></div>
+                <div class="order-info-row"><span>Order Date</span><strong>{{ order.created_at }}</strong></div>
+            </div>
+
+            <div class="order-divider"></div>
+
+            <a href="{{ path('app_orders') }}" class="order-back-link">← Back to My Orders</a>
+        </aside>
+    </div>
+</main>
+{% endblock %}

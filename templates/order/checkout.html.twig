@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Checkout | Kates Goodies{% endblock %}
+
+{% block body %}
+<main class="checkout-page">
+    <div class="checkout-heading">
+        <p class="eyebrow">Your Order</p>
+        <h1>Checkout</h1>
+        <p>Review your order and enter your delivery address.</p>
+    </div>
+
+    <div class="checkout-layout">
+        <section class="checkout-products">
+            <div class="checkout-section-title">
+                <h2>Order Summary</h2>
+                <span>{{ items|length }} item{{ items|length != 1 ? 's' : '' }}</span>
+            </div>
+
+            {% for item in items %}
+                <div class="checkout-item">
+                    <img src="/{{ item.image|trim('/', 'left') }}" alt="{{ item.name }}">
+                    <div class="checkout-item-info">
+                        <h3>{{ item.name }}</h3>
+                        <p>₱{{ item.price|number_format(2) }} × {{ item.quantity }}</p>
+                    </div>
+                    <strong class="checkout-item-total">₱{{ item.subtotal|number_format(2) }}</strong>
+                </div>
+            {% endfor %}
+        </section>
+
+        <aside class="checkout-summary">
+            <p class="eyebrow">Delivery</p>
+            <h2>Delivery Address</h2>
+
+            <form action="{{ path('app_order_place') }}" method="POST">
+                <div class="address-form">
+                    <label for="delivery_address">Where should we deliver your order?</label>
+                    <textarea id="delivery_address" name="delivery_address" rows="4"
+                        placeholder="House/Unit No., Street, Barangay, City, Province" required></textarea>
+                    <small>Make sure your address is complete and accurate.</small>
+                </div>
+
+                <div class="checkout-summary-row">
+                    <span>Subtotal</span>
+                    <span>₱{{ total|number_format(2) }}</span>
+                </div>
+                <div class="checkout-summary-row">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                </div>
+
+                <div class="checkout-divider"></div>
+
+                <div class="checkout-total">
+                    <span>Total</span>
+                    <strong>₱{{ total|number_format(2) }}</strong>
+                </div>
+
+                <button type="submit" class="checkout-button">Place Order</button>
+            </form>
+
+            <a href="{{ path('app_cart') }}" class="checkout-back">← Back to Cart</a>
+        </aside>
+    </div>
+</main>
+{% endblock %}
