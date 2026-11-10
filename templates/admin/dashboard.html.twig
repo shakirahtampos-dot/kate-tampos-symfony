@@ -14,14 +14,20 @@
     <div class="admin-header">
         <div>
             <p class="eyebrow">Admin Panel</p>
-            <h1>Orders Dashboard</h1>
-            <p>Manage customer orders for Kates Goodies.</p>
+            <h1>Admin Dashboard</h1>
+            <p>Manage orders, products, and accounts for Kates Goodies.</p>
         </div>
 
         <div>
             <a href="{{ path('app_admin_products') }}" class="admin-back">Manage Products</a>
             <a href="{{ path('app_home') }}" class="admin-back">Back to Website</a>
         </div>
+    </div>
+
+    <div class="admin-stats">
+        <div class="admin-stat"><span>Total Users</span><strong>{{ counts.users }}</strong></div>
+        <div class="admin-stat"><span>Total Staff</span><strong>{{ counts.staff }}</strong></div>
+        <div class="admin-stat"><span>Total Products</span><strong>{{ counts.products }}</strong></div>
     </div>
 
     <div class="admin-stats">

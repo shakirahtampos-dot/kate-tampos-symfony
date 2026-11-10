@@ -28,6 +28,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20)]
     private string $role = 'customer';
 
+    #[ORM\Column(name: 'is_active', options: ['default' => true])]
+    private bool $isActive = true;
+
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
@@ -45,11 +48,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static { $this->password = $password; return $this; }
     public function getRole(): string { return $this->role; }
     public function setRole(string $role): static { $this->role = $role; return $this; }
+    public function isActive(): bool { return $this->isActive; }
+    public function setIsActive(bool $isActive): static { $this->isActive = $isActive; return $this; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
     public function getUserIdentifier(): string { return $this->email; }
 
     public function getRoles(): array
     {
-        return $this->role === 'admin' ? ['ROLE_ADMIN', 'ROLE_USER'] : ['ROLE_USER'];
+        return match ($this->role) {
+            'admin' => ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_USER'],
+            'staff' => ['ROLE_STAFF', 'ROLE_USER'],
+            default => ['ROLE_USER'],
+        };
     }
 }

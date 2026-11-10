@@ -32,6 +32,10 @@ class Product
     #[ORM\Column]
     private int $stock = 0;
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'created_by', nullable: true, onDelete: 'SET NULL')]
+    private ?User $createdBy = null;
+
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
@@ -53,5 +57,7 @@ class Product
     public function setImage(?string $image): static { $this->image = $image; return $this; }
     public function getStock(): int { return $this->stock; }
     public function setStock(int $stock): static { $this->stock = $stock; return $this; }
+    public function getCreatedBy(): ?User { return $this->createdBy; }
+    public function setCreatedBy(?User $createdBy): static { $this->createdBy = $createdBy; return $this; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
 }

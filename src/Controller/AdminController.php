@@ -45,6 +45,9 @@ class AdminController extends AbstractController
             'approved' => (int) ($byStatus['Approved'] ?? 0),
             'completed' => (int) ($byStatus['Completed'] ?? 0),
             'cancelled' => (int) ($byStatus['Cancelled'] ?? 0),
+            'users' => (int) $this->db->fetchOne('SELECT COUNT(*) FROM users'),
+            'staff' => (int) $this->db->fetchOne("SELECT COUNT(*) FROM users WHERE role = 'staff'"),
+            'products' => (int) $this->db->fetchOne('SELECT COUNT(*) FROM products'),
         ];
 
         $sql = 'SELECT o.id, o.total_amount, o.status, o.created_at, u.full_name FROM orders o INNER JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC';
