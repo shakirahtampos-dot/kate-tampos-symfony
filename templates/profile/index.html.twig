@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile | Kates Goodies{% endblock %}
+
+{% block body %}
+<main class="profile-container">
+
+    <div class="profile-header">
+        <p class="profile-label">ACCOUNT</p>
+        <h1>My Profile</h1>
+        <p class="profile-subtitle">Manage your personal information and account settings.</p>
+    </div>
+
+    {% for message in app.flashes('profile_success') %}
+        <div class="profile-message success">{{ message }}</div>
+    {% endfor %}
+
+    {% if error %}
+        <div class="profile-message error">{{ error }}</div>
+    {% endif %}
+
+    <div class="profile-card">
+
+        <div class="profile-card-header">
+            <div class="profile-avatar">{{ full_name|slice(0, 1)|upper }}</div>
+
+            <div>
+                <h2>{{ full_name }}</h2>
+                <p>{{ email }}</p>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ path('app_profile') }}">
+
+            <div class="profile-section">
+                <h3>Personal Information</h3>
+
+                <div class="profile-form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" value="{{ full_name }}" required>
+                </div>
+
+                <div class="profile-form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" value="{{ email }}" required>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>Change Password</h3>
+                <p class="profile-hint">Leave these fields blank if you do not want to change your password.</p>
+
+                <div class="profile-form-group">
+                    <label for="new_password">New Password</label>
+                    <input type="password" id="new_password" name="new_password" placeholder="Enter new password">
+                </div>
+
+                <div class="profile-form-group">
+                    <label for="confirm_password">Confirm New Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm new password">
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <a href="/" class="profile-cancel">Back to Home</a>
+                <button type="submit" class="profile-save">Save Changes</button>
+            </div>
+
+        </form>
+
+    </div>
+
+</main>
+{% endblock %}
