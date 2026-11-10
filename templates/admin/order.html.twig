@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order #{{ order.id }} | Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<div class="admin-container">
+
+    <div class="admin-header">
+        <div>
+            <p class="eyebrow">Admin Panel</p>
+            <h1>Order #{{ order.id }}</h1>
+            <p>View customer and order information.</p>
+        </div>
+
+        <a href="{{ path('app_admin') }}" class="admin-back">← Back to Orders</a>
+    </div>
+
+    {% for message in app.flashes('admin_success') %}
+        <div class="admin-success">{{ message }}</div>
+    {% endfor %}
+
+    <div class="admin-order-details">
+
+        <div class="admin-detail-card">
+            <p class="eyebrow">Customer</p>
+            <h2>{{ order.full_name }}</h2>
+            <p>{{ order.email }}</p>
+            <p>User #{{ order.user_id }}</p>
+        </div>
+
+        <div class="admin-detail-card">
+            <p class="eyebrow">Address</p>
+            <h2>📍 Customer Address</h2>
+            <p class="admin-delivery-address">{{ order.delivery_address|nl2br }}</p>
+        </div>
+
+        <div class="admin-detail-card">
+            <p class="eyebrow">Order Information</p>
+            <h2>Order Details</h2>
+            <p><strong>Order ID:</strong> #{{ order.id }}</p>
+            <p><strong>Total:</strong> ₱{{ order.total_amount|number_format(2) }}</p>
+            <p><strong>Date:</strong> {{ order.created_at|date('M d, Y h:i A') }}</p>
+            <p>
+                <strong>Status:</strong>
+                <span class="status status-{{ order.status|lower|replace({' ': '-'}) }}">{{ order.status }}</span>
+            </p>
+        </div>
+
+        <div class="admin-detail-card">
+            <p class="eyebrow">Update Order</p>
+            <h2>Order Status</h2>
+
+            <form method="POST" action="{{ path('app_admin_order', {id: order.id}) }}">
+                <select name="status" required>
+                    {% for s in statuses %}
+                        <option value="{{ s }}" {{ order.status == s ? 'selected' : '' }}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" class="admin-update-button">Update Status</button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="admin-order-items">
+
+        <div class="admin-section-header">
+            <h2>Ordered Products</h2>
+            <span>{{ items|length }} item{{ items|length != 1 ? 's' : '' }}</span>
+        </div>
+
+        {% for item in items %}
+            <div class="admin-order-item">
+                <img src="/{{ item.image|trim('/', 'left') }}" alt="{{ item.name }}">
+
+                <div>
+                    <h3>{{ item.name }}</h3>
+                    <p>₱{{ item.price|number_format(2) }} × {{ item.quantity }}</p>
+                </div>
+
+                <strong>₱{{ (item.price * item.quantity)|number_format(2) }}</strong>
+            </div>
+        {% endfor %}
+
+        <div class="admin-order-total">
+            <span>Total</span>
+            <strong>₱{{ order.total_amount|number_format(2) }}</strong>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

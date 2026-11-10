@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Kates Goodies</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<div class="admin-container">
+
+    <div class="admin-header">
+        <div>
+            <p class="eyebrow">Admin Panel</p>
+            <h1>Orders Dashboard</h1>
+            <p>Manage customer orders for Kates Goodies.</p>
+        </div>
+
+        <a href="{{ path('app_home') }}" class="admin-back">Back to Website</a>
+    </div>
+
+    <div class="admin-stats">
+        <div class="admin-stat"><span>Total Orders</span><strong>{{ counts.total }}</strong></div>
+        <div class="admin-stat"><span>Pending</span><strong>{{ counts.pending }}</strong></div>
+        <div class="admin-stat"><span>Approved</span><strong>{{ counts.approved }}</strong></div>
+        <div class="admin-stat"><span>Completed</span><strong>{{ counts.completed }}</strong></div>
+        <div class="admin-stat"><span>Cancelled</span><strong>{{ counts.cancelled }}</strong></div>
+    </div>
+
+    <div class="admin-orders">
+
+        <div class="admin-section-header">
+            <h2>Customer Orders</h2>
+            <span>{{ orders|length }} orders</span>
+        </div>
+
+        {% if orders is empty %}
+            <div class="admin-empty">
+                <h2>No Orders Yet</h2>
+                <p>Customer orders will appear here.</p>
+            </div>
+        {% else %}
+            <div class="admin-table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td><strong>#{{ order.id }}</strong></td>
+                                <td>{{ order.full_name }}</td>
+                                <td><strong>₱{{ order.total_amount|number_format(2) }}</strong></td>
+                                <td>
+                                    <span class="status status-{{ order.status|lower|replace({' ': '-'}) }}">{{ order.status }}</span>
+                                </td>
+                                <td>{{ order.created_at|date('M d, Y h:i A') }}</td>
+                                <td>
+                                    <a href="{{ path('app_admin_order', {id: order.id}) }}" class="admin-view-button">View</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>
