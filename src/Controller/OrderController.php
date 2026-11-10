@@ -82,7 +82,7 @@ class OrderController extends AbstractController
 
         $address = trim((string) $request->request->get('delivery_address', ''));
         if ($address === '') {
-            $this->addFlash('error', 'Please enter your delivery address.');
+            $this->addFlash('error', 'Please enter your address.');
 
             return $this->redirectToRoute('app_checkout');
         }

@@ -1,42 +1,37 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Order Confirmed | Kates Goodies{% endblock %}
+{% block title %}My Orders - Kates Goodies{% endblock %}
 
 {% block body %}
-<main class="order-success-page">
-    <div class="order-success-card">
-        <div class="order-success-icon">✓</div>
-        <p class="eyebrow">Order Confirmed</p>
-        <h1>Thank You<br>For Your Order!</h1>
-        <p class="order-success-message">
-            Your order has been successfully placed.
-            We'll prepare your goodies with care.
-        </p>
+<main style="max-width:900px;margin:0 auto;padding:120px 20px 60px;">
+    <h1>My Orders</h1>
 
-        <div class="success-order-number">
-            <span>Order Number</span>
-            <strong>#{{ order.id }}</strong>
-        </div>
-
-        <div class="success-details">
-            <div>
-                <span>Status</span>
-                <strong>{{ order.status }}</strong>
-            </div>
-            <div>
-                <span>Total</span>
-                <strong>₱{{ order.total_amount|number_format(2) }}</strong>
-            </div>
-            <div>
-                <span>Delivery Address</span>
-                <strong>{{ order.delivery_address|nl2br }}</strong>
-            </div>
-        </div>
-
-        <div class="order-success-actions">
-            <a href="{{ path('app_order_show', {id: order.id}) }}" class="success-primary-button">View Order</a>
-            <a href="{{ path('app_home') }}" class="success-secondary-button">Continue Shopping</a>
-        </div>
-    </div>
+    {% if orders is empty %}
+        <p>You have no orders yet.</p>
+        <p><a href="/#menu">Browse the menu</a></p>
+    {% else %}
+        <table style="width:100%;border-collapse:collapse;">
+            <thead>
+                <tr style="text-align:left;border-bottom:2px solid #ddd;">
+                    <th style="padding:10px;">Order #</th>
+                    <th style="padding:10px;">Date</th>
+                    <th style="padding:10px;">Total</th>
+                    <th style="padding:10px;">Status</th>
+                    <th style="padding:10px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr style="border-bottom:1px solid #eee;">
+                        <td style="padding:10px;">#{{ order.id }}</td>
+                        <td style="padding:10px;">{{ order.created_at|date('M d, Y h:i A') }}</td>
+                        <td style="padding:10px;">₱{{ order.total_amount|number_format(2) }}</td>
+                        <td style="padding:10px;">{{ order.status }}</td>
+                        <td style="padding:10px;"><a href="{{ path('app_order_show', {id: order.id}) }}">View</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 </main>
 {% endblock %}

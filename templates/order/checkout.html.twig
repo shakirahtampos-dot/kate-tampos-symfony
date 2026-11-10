@@ -7,7 +7,7 @@
     <div class="checkout-heading">
         <p class="eyebrow">Your Order</p>
         <h1>Checkout</h1>
-        <p>Review your order and enter your delivery address.</p>
+        <p>Review your order. You will pick up your order at the bakery.</p>
     </div>
 
     <div class="checkout-layout">
@@ -30,24 +30,20 @@
         </section>
 
         <aside class="checkout-summary">
-            <p class="eyebrow">Delivery</p>
-            <h2>Delivery Address</h2>
+            <p class="eyebrow">Pickup</p>
+            <h2>Your Details</h2>
 
             <form action="{{ path('app_order_place') }}" method="POST">
                 <div class="address-form">
-                    <label for="delivery_address">Where should we deliver your order?</label>
+                    <label for="delivery_address">Address</label>
                     <textarea id="delivery_address" name="delivery_address" rows="4"
                         placeholder="House/Unit No., Street, Barangay, City, Province" required></textarea>
-                    <small>Make sure your address is complete and accurate.</small>
+                    <small>Pick up your order at our bakery once it's ready.</small>
                 </div>
 
                 <div class="checkout-summary-row">
                     <span>Subtotal</span>
                     <span>₱{{ total|number_format(2) }}</span>
-                </div>
-                <div class="checkout-summary-row">
-                    <span>Shipping</span>
-                    <span>Free</span>
                 </div>
 
                 <div class="checkout-divider"></div>
