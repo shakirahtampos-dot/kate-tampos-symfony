@@ -65,6 +65,9 @@
                         {% if is_granted('ROLE_ADMIN') %}
                             <a href="/admin">Admin Dashboard</a>
                         {% endif %}
+                        {% if is_granted('ROLE_STAFF') %}
+                            <a href="/manage/products">Manage Products</a>
+                        {% endif %}
                         <a href="/profile">My Profile</a>
                         <a href="/orders">My Orders</a>
                         <a href="/logout">Logout</a>
@@ -93,6 +96,9 @@
             <a href="/cart">🛒 Cart ({{ cart_count() }})</a>
             {% if is_granted('ROLE_ADMIN') %}
                 <a href="/admin">Admin Dashboard</a>
+            {% endif %}
+            {% if is_granted('ROLE_STAFF') %}
+                <a href="/manage/products">Manage Products</a>
             {% endif %}
             <a href="/profile">👤 My Profile</a>
             <a href="/orders">My Orders</a>

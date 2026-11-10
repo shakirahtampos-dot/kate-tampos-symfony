@@ -15,6 +15,10 @@ class AfterLoginController extends AbstractController
             return $this->redirectToRoute('app_admin');
         }
 
+        if ($this->isGranted('ROLE_STAFF')) {
+            return $this->redirectToRoute('app_admin_products');
+        }
+
         return $this->redirectToRoute('app_home');
     }
 }

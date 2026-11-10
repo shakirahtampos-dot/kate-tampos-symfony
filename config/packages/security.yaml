@@ -27,4 +27,5 @@ security:
 
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/manage, roles: ROLE_STAFF }
         - { path: ^/(cart|orders|profile|checkout), roles: ROLE_USER }

@@ -7,11 +7,31 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_STAFF')]
 class AdminProductController extends AbstractController
 {
     public function __construct(private Connection $db)
     {
+    }
+
+    private function canModify(array $product): bool
+    {
+        return $this->isGranted('ROLE_ADMIN') || (int) $product['created_by'] === $this->getUser()->getId();
+    }
+
+    private function findOwned(int $id): array
+    {
+        $product = $this->db->fetchAssociative('SELECT * FROM products WHERE id = ?', [$id]);
+        if (!$product) {
+            throw $this->createNotFoundException('Product not found.');
+        }
+        if (!$this->canModify($product)) {
+            throw $this->createAccessDeniedException('You can only change your own products.');
+        }
+
+        return $product;
     }
 
     /** @return array{0: array, 1: string|null} */
@@ -38,15 +58,16 @@ class AdminProductController extends AbstractController
         return [$data, $error];
     }
 
-    #[Route('/admin/products', name: 'app_admin_products')]
+    #[Route('/manage/products', name: 'app_admin_products')]
     public function index(): Response
     {
-        $products = $this->db->fetchAllAssociative('SELECT * FROM products ORDER BY id DESC');
+        $sql = 'SELECT p.*, u.full_name AS owner_name FROM products p LEFT JOIN users u ON p.created_by = u.id ORDER BY p.id DESC';
+        $products = $this->db->fetchAllAssociative($sql);
 
         return $this->render('admin/products.html.twig', ['products' => $products]);
     }
 
-    #[Route('/admin/products/new', name: 'app_admin_product_new', methods: ['GET', 'POST'])]
+    #[Route('/manage/products/new', name: 'app_admin_product_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
         $product = ['name' => '', 'description' => '', 'price' => '', 'tag' => '', 'image' => '', 'stock' => ''];
@@ -56,7 +77,7 @@ class AdminProductController extends AbstractController
             [$product, $error] = $this->readForm($request);
 
             if (!$error) {
-                $sql = 'INSERT INTO products (name, description, price, tag, image, stock, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())';
+                $sql = 'INSERT INTO products (name, description, price, tag, image, stock, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())';
                 $this->db->executeStatement($sql, [
                     $product['name'],
                     $product['description'],
@@ -64,6 +85,7 @@ class AdminProductController extends AbstractController
                     $product['tag'],
                     $product['image'],
                     (int) $product['stock'],
+                    $this->getUser()->getId(),
                 ]);
                 $this->addFlash('admin_success', 'Product added successfully.');
 
@@ -82,16 +104,10 @@ class AdminProductController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/products/{id}/edit', name: 'app_admin_product_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/manage/products/{id}/edit', name: 'app_admin_product_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function edit(int $id, Request $request): Response
     {
-        $product = $this->db->fetchAssociative('SELECT * FROM products WHERE id = ?', [$id]);
-        if (!$product) {
-            $this->addFlash('admin_error', 'Product not found.');
-
-            return $this->redirectToRoute('app_admin_products');
-        }
-
+        $product = $this->findOwned($id);
         $error = null;
 
         if ($request->isMethod('POST')) {
@@ -125,11 +141,12 @@ class AdminProductController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/products/{id}/delete', name: 'app_admin_product_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[Route('/manage/products/{id}/delete', name: 'app_admin_product_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function delete(int $id): Response
     {
-        $used = (int) $this->db->fetchOne('SELECT COUNT(*) FROM order_items WHERE product_id = ?', [$id]);
+        $this->findOwned($id);
 
+        $used = (int) $this->db->fetchOne('SELECT COUNT(*) FROM order_items WHERE product_id = ?', [$id]);
         if ($used > 0) {
             $this->addFlash('admin_error', 'This product is already in an order and cannot be deleted. Set its stock to 0 instead.');
 

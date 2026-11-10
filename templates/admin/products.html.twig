@@ -13,8 +13,12 @@
     <div class="top-bar">
         <div>
             <h1>Manage Products</h1>
-            <p>Add, edit, or delete Kates Goodies products.</p>
-            <p><a href="{{ path('app_admin') }}">← Orders Dashboard</a></p>
+            <p>Add products, and edit or delete your own.</p>
+            {% if is_granted('ROLE_ADMIN') %}
+                <p><a href="{{ path('app_admin') }}">← Admin Dashboard</a></p>
+            {% else %}
+                <p><a href="{{ path('app_home') }}">← Back to Website</a></p>
+            {% endif %}
         </div>
 
         <a href="{{ path('app_admin_product_new') }}" class="add-button">+ Add Product</a>
@@ -35,6 +39,7 @@
                 <th>Price</th>
                 <th>Tag</th>
                 <th>Stock</th>
+                <th>Added By</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -42,6 +47,7 @@
         <tbody>
         {% for product in products %}
             {% set img = product.image starts with 'http' ? product.image : '/' ~ (product.image|trim('/', 'left')) %}
+            {% set can_modify = is_granted('ROLE_ADMIN') or product.created_by == app.user.id %}
             <tr>
                 <td>
                     {% if product.image %}
@@ -52,19 +58,24 @@
                 <td>₱{{ product.price|number_format(2) }}</td>
                 <td>{{ product.tag }}</td>
                 <td>{{ product.stock }}</td>
+                <td>{{ product.owner_name ?? '-' }}</td>
                 <td>
-                    <a href="{{ path('app_admin_product_edit', {id: product.id}) }}" class="edit-button">Edit</a>
+                    {% if can_modify %}
+                        <a href="{{ path('app_admin_product_edit', {id: product.id}) }}" class="edit-button">Edit</a>
 
-                    <form method="POST" action="{{ path('app_admin_product_delete', {id: product.id}) }}"
-                          style="display:inline;"
-                          onsubmit="return confirm('Are you sure you want to delete this product?');">
-                        <button type="submit" class="delete-button" style="border:0;cursor:pointer;font:inherit;">Delete</button>
-                    </form>
+                        <form method="POST" action="{{ path('app_admin_product_delete', {id: product.id}) }}"
+                              style="display:inline;"
+                              onsubmit="return confirm('Are you sure you want to delete this product?');">
+                            <button type="submit" class="delete-button" style="border:0;cursor:pointer;font:inherit;">Delete</button>
+                        </form>
+                    {% else %}
+                        <span>View only</span>
+                    {% endif %}
                 </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="6">No products found.</td>
+                <td colspan="7">No products found.</td>
             </tr>
         {% endfor %}
         </tbody>
