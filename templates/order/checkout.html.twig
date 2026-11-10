@@ -19,7 +19,9 @@
 
             {% for item in items %}
                 <div class="checkout-item">
-                    <img src="/{{ item.image|trim('/', 'left') }}" alt="{{ item.name }}">
+                    {% if item.image %}
+                        <img src="/{{ item.image|trim('/', 'left') }}" alt="{{ item.name }}">
+                    {% endif %}
                     <div class="checkout-item-info">
                         <h3>{{ item.name }}</h3>
                         <p>₱{{ item.price|number_format(2) }} × {{ item.quantity }}</p>
@@ -38,7 +40,7 @@
                     <label for="delivery_address">Address</label>
                     <textarea id="delivery_address" name="delivery_address" rows="4"
                         placeholder="House/Unit No., Street, Barangay, City, Province" required></textarea>
-                    <small>Pick up your order at our bakery once it's ready.</small>
+                    <small>Pickup only. We don't deliver. Your address is for our records.</small>
                 </div>
 
                 <div class="checkout-summary-row">

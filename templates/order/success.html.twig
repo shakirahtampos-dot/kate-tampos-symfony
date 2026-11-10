@@ -28,10 +28,14 @@
                 <strong>₱{{ order.total_amount|number_format(2) }}</strong>
             </div>
             <div>
-                <span>Delivery Address</span>
+                <span>Address</span>
                 <strong>{{ order.delivery_address|nl2br }}</strong>
             </div>
         </div>
+
+        <p class="order-success-message">
+            Pick up your order at our bakery once it's ready.
+        </p>
 
         <div class="order-success-actions">
             <a href="{{ path('app_order_show', {id: order.id}) }}" class="success-primary-button">View Order</a>

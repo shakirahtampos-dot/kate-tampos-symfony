@@ -12,7 +12,7 @@
 
 {% set testimonials = [
     {'quote': 'The croissant changed my entire morning routine. It is the first thing I think about when I wake up.', 'name': 'Sarah M.', 'role': 'Regular since 2022'},
-    {'quote': "Kate's Goodies is the only bakery where I actually feel the love in every single bite. Never going anywhere else.", 'name': 'Daniel R.', 'role': 'South Melbourne local'},
+    {'quote': "Kate's Goodies is the only bakery where I actually feel the love in every single bite. Never going anywhere else.", 'name': 'Daniel R.', 'role': 'Dumaguete local'},
     {'quote': 'I ordered the morning box for my team and everyone went quiet for five minutes. That says everything.', 'name': 'Priya K.', 'role': 'Office regular'}
 ] %}
 
@@ -76,7 +76,7 @@
                 <div class="product-content">
                     <div class="product-top">
                         <span class="product-tag">{{ product.tag }}</span>
-                        <span class="product-price">{{ product.price }}</span>
+                        <span class="product-price">₱{{ product.price|number_format(2) }}</span>
                     </div>
                     <h3>{{ product.name }}</h3>
                     <p>{{ product.description }}</p>
