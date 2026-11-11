@@ -24,6 +24,9 @@
     {% for message in app.flashes('admin_success') %}
         <div class="admin-success">{{ message }}</div>
     {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div style="background:#fde8e8;color:#9b1c1c;padding:12px 20px;margin-bottom:16px;">{{ message }}</div>
+    {% endfor %}
 
     <div class="admin-order-details">
 
@@ -57,6 +60,8 @@
             <h2>Order Status</h2>
 
             <form method="POST" action="{{ path('app_admin_order', {id: order.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('order_status') }}">
+
                 <select name="status" required>
                     {% for s in statuses %}
                         <option value="{{ s }}" {{ order.status == s ? 'selected' : '' }}>{{ s }}</option>

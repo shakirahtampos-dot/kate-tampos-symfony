@@ -7,7 +7,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_ADMIN')]
 class AdminController extends AbstractController
 {
     private const STATUSES = ['Pending', 'Approved', 'Ready for Pickup', 'Picked Up', 'Completed', 'Cancelled'];
@@ -16,28 +18,9 @@ class AdminController extends AbstractController
     {
     }
 
-    private function guard(): ?Response
-    {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        $role = $this->db->fetchOne('SELECT role FROM users WHERE id = ?', [$user->getId()]);
-        if ($role !== 'admin') {
-            return $this->redirectToRoute('app_home');
-        }
-
-        return null;
-    }
-
     #[Route('/admin', name: 'app_admin')]
     public function dashboard(): Response
     {
-        if ($denied = $this->guard()) {
-            return $denied;
-        }
-
         $byStatus = $this->db->fetchAllKeyValue('SELECT status, COUNT(*) FROM orders GROUP BY status');
         $counts = [
             'total' => array_sum($byStatus),
@@ -62,10 +45,6 @@ class AdminController extends AbstractController
     #[Route('/admin/orders/{id}', name: 'app_admin_order', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function order(int $id, Request $request): Response
     {
-        if ($denied = $this->guard()) {
-            return $denied;
-        }
-
         $orderSql = 'SELECT o.*, u.email, u.full_name FROM orders o INNER JOIN users u ON o.user_id = u.id WHERE o.id = ?';
         $order = $this->db->fetchAssociative($orderSql, [$id]);
 
@@ -74,6 +53,12 @@ class AdminController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('order_status', (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Invalid security token. Please try again.');
+
+                return $this->redirectToRoute('app_admin_order', ['id' => $id]);
+            }
+
             $status = (string) $request->request->get('status', '');
 
             if (in_array($status, self::STATUSES, true)) {

@@ -16,6 +16,11 @@ class AdminProductController extends AbstractController
     {
     }
 
+    private function checkToken(Request $request, string $tokenId): bool
+    {
+        return $this->isCsrfTokenValid($tokenId, (string) $request->request->get('_token'));
+    }
+
     private function canModify(array $product): bool
     {
         return $this->isGranted('ROLE_ADMIN') || (int) $product['created_by'] === $this->getUser()->getId();
@@ -74,22 +79,26 @@ class AdminProductController extends AbstractController
         $error = null;
 
         if ($request->isMethod('POST')) {
-            [$product, $error] = $this->readForm($request);
+            if (!$this->checkToken($request, 'product_form')) {
+                $error = 'Invalid security token. Please try again.';
+            } else {
+                [$product, $error] = $this->readForm($request);
 
-            if (!$error) {
-                $sql = 'INSERT INTO products (name, description, price, tag, image, stock, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())';
-                $this->db->executeStatement($sql, [
-                    $product['name'],
-                    $product['description'],
-                    $product['price'],
-                    $product['tag'],
-                    $product['image'],
-                    (int) $product['stock'],
-                    $this->getUser()->getId(),
-                ]);
-                $this->addFlash('admin_success', 'Product added successfully.');
+                if (!$error) {
+                    $sql = 'INSERT INTO products (name, description, price, tag, image, stock, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())';
+                    $this->db->executeStatement($sql, [
+                        $product['name'],
+                        $product['description'],
+                        $product['price'],
+                        $product['tag'],
+                        $product['image'],
+                        (int) $product['stock'],
+                        $this->getUser()->getId(),
+                    ]);
+                    $this->addFlash('admin_success', 'Product added successfully.');
 
-                return $this->redirectToRoute('app_admin_products');
+                    return $this->redirectToRoute('app_admin_products');
+                }
             }
         }
 
@@ -111,22 +120,26 @@ class AdminProductController extends AbstractController
         $error = null;
 
         if ($request->isMethod('POST')) {
-            [$product, $error] = $this->readForm($request);
+            if (!$this->checkToken($request, 'product_form')) {
+                $error = 'Invalid security token. Please try again.';
+            } else {
+                [$product, $error] = $this->readForm($request);
 
-            if (!$error) {
-                $sql = 'UPDATE products SET name = ?, description = ?, price = ?, tag = ?, image = ?, stock = ? WHERE id = ?';
-                $this->db->executeStatement($sql, [
-                    $product['name'],
-                    $product['description'],
-                    $product['price'],
-                    $product['tag'],
-                    $product['image'],
-                    (int) $product['stock'],
-                    $id,
-                ]);
-                $this->addFlash('admin_success', 'Product updated successfully.');
+                if (!$error) {
+                    $sql = 'UPDATE products SET name = ?, description = ?, price = ?, tag = ?, image = ?, stock = ? WHERE id = ?';
+                    $this->db->executeStatement($sql, [
+                        $product['name'],
+                        $product['description'],
+                        $product['price'],
+                        $product['tag'],
+                        $product['image'],
+                        (int) $product['stock'],
+                        $id,
+                    ]);
+                    $this->addFlash('admin_success', 'Product updated successfully.');
 
-                return $this->redirectToRoute('app_admin_products');
+                    return $this->redirectToRoute('app_admin_products');
+                }
             }
         }
 
@@ -142,9 +155,15 @@ class AdminProductController extends AbstractController
     }
 
     #[Route('/manage/products/{id}/delete', name: 'app_admin_product_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function delete(int $id): Response
+    public function delete(int $id, Request $request): Response
     {
         $this->findOwned($id);
+
+        if (!$this->checkToken($request, 'product_action')) {
+            $this->addFlash('admin_error', 'Invalid security token. Please try again.');
+
+            return $this->redirectToRoute('app_admin_products');
+        }
 
         $used = (int) $this->db->fetchOne('SELECT COUNT(*) FROM order_items WHERE product_id = ?', [$id]);
         if ($used > 0) {
