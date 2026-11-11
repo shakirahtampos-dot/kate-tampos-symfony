@@ -32,7 +32,11 @@ class RegistrationController extends AbstractController
             $password = (string) $request->request->get('password', '');
             $confirm = (string) $request->request->get('confirm_password', '');
 
-            $error = $this->validateRegistration($fullName, $email, $password, $confirm);
+            if (!$this->isCsrfTokenValid('register_form', (string) $request->request->get('_token'))) {
+                $error = 'Invalid security token. Please try again.';
+            } else {
+                $error = $this->validateRegistration($fullName, $email, $password, $confirm);
+            }
 
             if ($error === '' && $em->getRepository(User::class)->findOneBy(['email' => $email])) {
                 $error = 'An account with this email already exists.';

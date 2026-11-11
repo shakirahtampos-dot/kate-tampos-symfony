@@ -45,6 +45,12 @@ class CartController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        if (!$this->isCsrfTokenValid('cart_action', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid security token. Please try again.');
+
+            return $this->redirectToRoute('app_home');
+        }
+
         $productId = $request->request->get('product_id');
 
         if (!is_numeric($productId)) {
@@ -103,6 +109,10 @@ class CartController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('cart_action', (string) $request->request->get('_token'))) {
+            return $this->redirectToRoute('app_cart');
+        }
 
         $cartItemId = $request->request->get('cart_item_id');
         $action = $request->request->get('action');

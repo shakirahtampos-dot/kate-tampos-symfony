@@ -83,6 +83,7 @@
 
                     {% if app.user %}
                         <form action="/cart/add" method="POST">
+                        <input type="hidden" name="_token" value="{{ csrf_token('cart_action') }}">
                             <input type="hidden" name="product_id" value="{{ product.id }}">
                             <button type="submit" class="add-button">Add to Cart</button>
                         </form>
