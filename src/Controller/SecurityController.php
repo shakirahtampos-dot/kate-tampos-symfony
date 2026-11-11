@@ -5,6 +5,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
@@ -16,9 +17,18 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
+        $error = $authenticationUtils->getLastAuthenticationError();
+        $message = null;
+
+        if ($error !== null) {
+            $message = $error instanceof CustomUserMessageAccountStatusException
+                ? $error->getMessageKey()
+                : 'Invalid email or password.';
+        }
+
         return $this->render('security/login.html.twig', [
             'last_username' => $authenticationUtils->getLastUsername(),
-            'has_error' => $authenticationUtils->getLastAuthenticationError() !== null,
+            'error_message' => $message,
         ]);
     }
 

@@ -27,9 +27,13 @@
             </div>
         {% endif %}
 
-        {% if has_error %}
+        {% for message in app.flashes('error') %}
+            <div class="error">{{ message }}</div>
+        {% endfor %}
+
+        {% if error_message %}
             <div class="error">
-                Invalid email or password.
+                {{ error_message }}
             </div>
         {% endif %}
 

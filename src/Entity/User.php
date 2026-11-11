@@ -4,12 +4,13 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'users')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -60,5 +61,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             'staff' => ['ROLE_STAFF', 'ROLE_USER'],
             default => ['ROLE_USER'],
         };
+    }
+
+    public function isEqualTo(UserInterface $user): bool
+    {
+        return $user instanceof self
+            && $user->getId() === $this->id
+            && $user->getEmail() === $this->email
+            && $user->getPassword() === $this->password
+            && $user->getRole() === $this->role
+            && $user->isActive() === $this->isActive;
     }
 }

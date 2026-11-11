@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ heading }} - Kates Goodies</title>
+    <link rel="stylesheet" href="/css/edit_product.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>{{ heading }}</h1>
+    <p>{{ subtitle }}</p>
+
+    {% if error %}
+        <div class="message">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+        <input type="hidden" name="_token" value="{{ csrf_token('user_form') }}">
+
+        <div class="form-group">
+            <label for="full_name">Full Name *</label>
+            <input type="text" id="full_name" name="full_name" value="{{ user.full_name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" value="{{ user.email }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="role">Role *</label>
+            <select id="role" name="role" required>
+                {% for r in roles %}
+                    <option value="{{ r }}" {{ user.role == r ? 'selected' : '' }}>{{ r|capitalize }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="password">{{ is_new ? 'Password *' : 'New Password (leave blank to keep the current one)' }}</label>
+            <input type="password" id="password" name="password" {{ is_new ? 'required' : '' }}>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">{{ submit }}</button>
+            <a href="{{ path('app_admin_users') }}" class="back-button">Cancel</a>
+        </div>
+
+    </form>
+
+</div>
+
+</body>
+</html>
