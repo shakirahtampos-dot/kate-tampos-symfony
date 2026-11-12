@@ -64,12 +64,36 @@ class AdminProductController extends AbstractController
     }
 
     #[Route('/manage/products', name: 'app_admin_products')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $sql = 'SELECT p.*, u.full_name AS owner_name FROM products p LEFT JOIN users u ON p.created_by = u.id ORDER BY p.id DESC';
-        $products = $this->db->fetchAllAssociative($sql);
+        $q = trim((string) $request->query->get('q', ''));
+        $filter = (string) $request->query->get('filter', '');
 
-        return $this->render('admin/products.html.twig', ['products' => $products]);
+        $sql = 'SELECT p.*, u.full_name AS owner_name FROM products p LEFT JOIN users u ON p.created_by = u.id WHERE 1 = 1';
+        $params = [];
+
+        if ($q !== '') {
+            $like = '%' . $q . '%';
+            $sql .= ' AND (p.name LIKE ? OR p.description LIKE ? OR p.tag LIKE ?)';
+            array_push($params, $like, $like, $like);
+        }
+
+        if ($filter === 'mine') {
+            $sql .= ' AND p.created_by = ?';
+            $params[] = $this->getUser()->getId();
+        } elseif ($filter === 'out') {
+            $sql .= ' AND p.stock = 0';
+        } elseif ($filter === 'low') {
+            $sql .= ' AND p.stock > 0 AND p.stock <= 5';
+        }
+
+        $sql .= ' ORDER BY p.id DESC';
+
+        return $this->render('admin/products.html.twig', [
+            'products' => $this->db->fetchAllAssociative($sql, $params),
+            'q' => $q,
+            'filter' => $filter,
+        ]);
     }
 
     #[Route('/manage/products/new', name: 'app_admin_product_new', methods: ['GET', 'POST'])]

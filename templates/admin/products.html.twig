@@ -31,6 +31,21 @@
         <div style="background:#fde8e8;color:#9b1c1c;padding:12px 20px;margin-bottom:16px;">{{ message }}</div>
     {% endfor %}
 
+    <form method="GET" action="{{ path('app_admin_products') }}" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search name, description, or tag" style="padding:10px;flex:1;min-width:180px;">
+        <select name="filter" style="padding:10px;">
+            <option value="" {{ filter == '' ? 'selected' : '' }}>All products</option>
+            <option value="mine" {{ filter == 'mine' ? 'selected' : '' }}>My products</option>
+            <option value="out" {{ filter == 'out' ? 'selected' : '' }}>Out of stock</option>
+            <option value="low" {{ filter == 'low' ? 'selected' : '' }}>Low stock (5 or less)</option>
+        </select>
+        <button type="submit" style="padding:10px 16px;cursor:pointer;">Search</button>
+        {% if q != '' or filter != '' %}
+            <a href="{{ path('app_admin_products') }}" style="padding:10px 4px;">Clear</a>
+        {% endif %}
+    </form>
+
+    <div style="overflow-x:auto;">
     <table>
         <thead>
             <tr>
@@ -81,6 +96,7 @@
         {% endfor %}
         </tbody>
     </table>
+    </div>
 
 </div>
 
