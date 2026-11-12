@@ -12,7 +12,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_USER')]
 class CartController extends AbstractController
 {
     #[Route('/cart', name: 'app_cart')]
@@ -65,6 +67,7 @@ class CartController extends AbstractController
 
         if ($product->getStock() <= 0) {
             $this->addFlash('error', 'Sorry, that item is out of stock.');
+
             return $this->redirectToRoute('app_home');
         }
 
@@ -87,6 +90,7 @@ class CartController extends AbstractController
 
             if ($newQuantity > $product->getStock()) {
                 $this->addFlash('error', 'You have reached the stock limit for this item.');
+
                 return $this->redirectToRoute('app_home');
             }
 
@@ -111,6 +115,8 @@ class CartController extends AbstractController
         $user = $this->getUser();
 
         if (!$this->isCsrfTokenValid('cart_action', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid security token. Please try again.');
+
             return $this->redirectToRoute('app_cart');
         }
 
@@ -141,11 +147,17 @@ class CartController extends AbstractController
         return $this->redirectToRoute('app_cart');
     }
 
-    #[Route('/cart/remove/{id}', name: 'app_cart_remove', requirements: ['id' => '\d+'])]
-    public function remove(int $id, EntityManagerInterface $em): RedirectResponse
+    #[Route('/cart/remove/{id}', name: 'app_cart_remove', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function remove(int $id, Request $request, EntityManagerInterface $em): RedirectResponse
     {
         /** @var User $user */
         $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('cart_action', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid security token. Please try again.');
+
+            return $this->redirectToRoute('app_cart');
+        }
 
         $item = $em->getRepository(CartItem::class)->find($id);
 

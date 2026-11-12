@@ -36,7 +36,7 @@
 
                         <div class="quantity">
                             <form action="{{ path('app_cart_update') }}" method="POST">
-                            <input type="hidden" name="_token" value="{{ csrf_token('cart_action') }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('cart_action') }}">
                                 <input type="hidden" name="cart_item_id" value="{{ item.id }}">
 
                                 <button type="submit" name="action" value="decrease" {{ item.quantity <= 1 ? 'disabled' : '' }}>−</button>
@@ -52,11 +52,11 @@
                         ₱{{ (item.product.price * item.quantity)|number_format(2) }}
                     </div>
 
-                    <a href="{{ path('app_cart_remove', {id: item.id}) }}"
-                       class="remove"
-                       onclick="return confirm('Remove this item from your cart?');">
-                        Remove
-                    </a>
+                    <form action="{{ path('app_cart_remove', {id: item.id}) }}" method="POST"
+                          onsubmit="return confirm('Remove this item from your cart?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('cart_action') }}">
+                        <button type="submit" class="remove" style="background:none;border:0;cursor:pointer;font:inherit;">Remove</button>
+                    </form>
 
                 </div>
             {% endfor %}

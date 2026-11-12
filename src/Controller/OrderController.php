@@ -80,6 +80,12 @@ class OrderController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
+        if (!$this->isCsrfTokenValid('place_order', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid security token. Please try again.');
+
+            return $this->redirectToRoute('app_checkout');
+        }
+
         $address = trim((string) $request->request->get('delivery_address', ''));
         if ($address === '') {
             $this->addFlash('error', 'Please enter your address.');

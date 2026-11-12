@@ -31,6 +31,7 @@
         </div>
 
         <form method="POST" action="{{ path('app_profile') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('profile_form') }}">
 
             <div class="profile-section">
                 <h3>Personal Information</h3>
