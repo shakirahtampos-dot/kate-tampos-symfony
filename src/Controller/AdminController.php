@@ -19,7 +19,7 @@ class AdminController extends AbstractController
     }
 
     #[Route('/admin', name: 'app_admin')]
-    public function dashboard(): Response
+    public function dashboard(Request $request): Response
     {
         $byStatus = $this->db->fetchAllKeyValue('SELECT status, COUNT(*) FROM orders GROUP BY status');
         $counts = [
@@ -33,12 +33,31 @@ class AdminController extends AbstractController
             'products' => (int) $this->db->fetchOne('SELECT COUNT(*) FROM products'),
         ];
 
-        $sql = 'SELECT o.id, o.total_amount, o.status, o.created_at, u.full_name FROM orders o INNER JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC';
-        $orders = $this->db->fetchAllAssociative($sql);
+        $q = trim((string) $request->query->get('q', ''));
+        $status = (string) $request->query->get('status', '');
+
+        $sql = 'SELECT o.id, o.total_amount, o.status, o.created_at, u.full_name FROM orders o INNER JOIN users u ON o.user_id = u.id WHERE 1 = 1';
+        $params = [];
+
+        if ($q !== '') {
+            $like = '%' . $q . '%';
+            $sql .= ' AND (u.full_name LIKE ? OR u.email LIKE ? OR CAST(o.id AS CHAR) = ?)';
+            array_push($params, $like, $like, ltrim($q, '#'));
+        }
+
+        if (in_array($status, self::STATUSES, true)) {
+            $sql .= ' AND o.status = ?';
+            $params[] = $status;
+        }
+
+        $sql .= ' ORDER BY o.created_at DESC';
 
         return $this->render('admin/dashboard.html.twig', [
             'counts' => $counts,
-            'orders' => $orders,
+            'orders' => $this->db->fetchAllAssociative($sql, $params),
+            'q' => $q,
+            'status' => $status,
+            'statuses' => self::STATUSES,
         ]);
     }
 
@@ -59,11 +78,11 @@ class AdminController extends AbstractController
                 return $this->redirectToRoute('app_admin_order', ['id' => $id]);
             }
 
-            $status = (string) $request->request->get('status', '');
+            $newStatus = (string) $request->request->get('status', '');
 
-            if (in_array($status, self::STATUSES, true)) {
-                if ($status !== $order['status']) {
-                    $this->db->executeStatement('UPDATE orders SET status = ?, notification_read = 0 WHERE id = ?', [$status, $id]);
+            if (in_array($newStatus, self::STATUSES, true)) {
+                if ($newStatus !== $order['status']) {
+                    $this->db->executeStatement('UPDATE orders SET status = ?, notification_read = 0 WHERE id = ?', [$newStatus, $id]);
                     $this->addFlash('admin_success', 'Order status updated successfully.');
                 }
 

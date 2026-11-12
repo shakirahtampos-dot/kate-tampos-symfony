@@ -43,12 +43,26 @@
 
         <div class="admin-section-header">
             <h2>Customer Orders</h2>
-            <span>{{ orders|length }} orders</span>
+            <span>{{ orders|length }} order{{ orders|length != 1 ? 's' : '' }}</span>
         </div>
+
+        <form method="GET" action="{{ path('app_admin') }}" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+            <input type="text" name="q" value="{{ q }}" placeholder="Search order #, customer name, or email" style="padding:10px;flex:1;min-width:180px;">
+            <select name="status" style="padding:10px;">
+                <option value="">All statuses</option>
+                {% for s in statuses %}
+                    <option value="{{ s }}" {{ status == s ? 'selected' : '' }}>{{ s }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="admin-update-button">Search</button>
+            {% if q != '' or status != '' %}
+                <a href="{{ path('app_admin') }}" style="padding:10px 4px;">Clear</a>
+            {% endif %}
+        </form>
 
         {% if orders is empty %}
             <div class="admin-empty">
-                <h2>No Orders Yet</h2>
+                <h2>No Orders Found</h2>
                 <p>Customer orders will appear here.</p>
             </div>
         {% else %}
